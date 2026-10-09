@@ -195,6 +195,9 @@
   #fg-form.is-sent > :not(.sent) { display: none; }
   #fg-form.is-sent .sent { display: block; }
   [data-turnstile] { margin-bottom: 14px; }
+  .credit { margin-top: 14px; text-align: center; font-size: var(--fs-small); }
+  .credit a { border-bottom: 1px solid currentColor; }
+  .credit a:hover { color: var(--paper); }
   .socials { position: relative; z-index: 2; align-self: stretch; display: flex; justify-content: space-between; margin-top: auto; padding-top: 60px; font-size: var(--fs-h2); }
   .socials a { transition: color .3s; }
   .socials a:hover { color: var(--accent); }
@@ -396,6 +399,7 @@
           <button type="button" class="send d" data-again>Send another message</button>
         </div>
       </form>
+      <p class="credit">Form by <a href="https://formgong.com" rel="noopener">Formgong</a></p>
     </div>
     <nav class="socials d" aria-label="Social"><a href="#">Instagram</a><a href="mailto:studio@example.com">Email</a><a href="#">LinkedIn</a></nav>
   </section>
