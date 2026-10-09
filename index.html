@@ -136,8 +136,8 @@
   .c-words .r { text-align: right; color: var(--accent); }
   .c-words .s { display: flex; justify-content: space-between; }
   .c-strip { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: calc(14 * var(--u)); transform: translateY(calc((1 - var(--a, 0)) * 100vh)); }
-  .c-strip figure { position: relative; overflow: hidden; flex: none; width: 26vw; height: 40vh; border-radius: calc(10 * var(--u)); }
-  .c-strip figure.mid { width: calc(30vw + var(--b, 0) * 70vw); height: calc(40vh + var(--b, 0) * 60vh); border-radius: calc(10 * var(--u) * (1 - var(--b, 0))); z-index: 1; }
+  .c-strip figure { position: relative; overflow: hidden; flex: none; width: 26vw; height: 40vh; }
+  .c-strip figure.mid { width: calc(30vw + var(--b, 0) * 70vw); height: calc(40vh + var(--b, 0) * 60vh); z-index: 1; }
   .c-strip figure:not(.mid) { opacity: calc(1 - var(--b, 0)); }
   .c-text { position: absolute; z-index: 2; left: var(--gutter); top: 0; bottom: 0; width: min(560px, 34vw); display: flex; flex-direction: column; justify-content: space-between; padding: calc(var(--bar) + 60px) 40px 60px; background: var(--paper); font-size: var(--fs-body); line-height: 1.35; transform: translateX(calc((var(--t, 0) - 1) * 110%)); }
   .c-text p + p { text-align: right; }
