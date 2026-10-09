@@ -114,9 +114,12 @@
   .intro p { max-width: 21em; text-align: center; font-size: var(--fs-lead); line-height: 1.12; color: var(--accent); }
 
   /* Projects: full-screen photos that stack, each with a white bar along the bottom */
-  .project { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--ink); }
-  /* Each project holds the whole screen for a while before the next one slides over it */
-  .p-hold { height: 70vh; }
+  /* Projects share one pinned stage. Each holds the screen for a while, then the next slides over it,
+     each from its own side (data-from: right, bottom or left), so the entrances do not repeat. */
+  #work { position: relative; height: calc(var(--n, 4) * 170vh); }
+  .p-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--ink); }
+  .project { position: absolute; inset: 0; overflow: hidden; background: var(--ink); will-change: transform; }
+  .project img { transform: scale(calc(1.06 - var(--e, 1) * .06)); }
   .project .bar { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; gap: 24px; padding: 18px var(--gutter); background: var(--paper); transform: translateY(100%); transition: transform .9s var(--ease); }
   .project.in .bar { transform: none; }
   .bar .label { font-size: var(--fs-small); }
@@ -144,6 +147,8 @@
   .s-list { display: flex; flex-direction: column; justify-content: flex-end; gap: 30px; padding: 80px var(--gutter); }
   .s-list h2 { font-size: var(--fs-small); }
   .s-list li { font-size: var(--fs-h2); line-height: 1.08; }
+  .s-list li.rise { transform: translateX(-60px); }
+  .s-list li.rise.in { transform: none; }
   .s-photo { position: relative; overflow: hidden; }
 
   /* Stats on orange, with a pattern of rounded tiles */
@@ -250,6 +255,9 @@
     .c-strip figure.mid { width: 30vw; height: 40vh; }
     .c-text { width: auto; margin: 0 var(--gutter); padding: 0; }
     .hero { height: 100vh; }
+    #work { height: auto; }
+    .p-stage { position: static; height: auto; overflow: visible; }
+    .project { position: relative; height: 100vh; transform: none !important; }
   }
 </style>
 </head>
@@ -302,27 +310,25 @@
     <p class="rise">We are TAKU, an architecture studio in Copenhagen designing homes, libraries and workplaces that hold the light and age well.</p>
   </section>
 
-  <div id="work">
+  <div id="work" data-work>
+   <div class="p-stage">
     <article class="project" aria-labelledby="p1-t">
       <img class="cover" src="img/p1.webp" alt="A timber library pavilion with glass walls in a misty birch forest" loading="lazy" decoding="async">
       <div class="bar"><p class="label">A TAKU project</p><div><h2 class="d" id="p1-t">The library in the birches</h2><p>A reading pavilion set among birch trees. Its long roof and glass walls let the forest in on every side.</p></div><a class="d" href="#contact">View the project<span class="sr">: The library in the birches</span></a></div>
     </article>
-    <div class="p-hold" aria-hidden="true"></div>
-    <article class="project" aria-labelledby="p2-t">
+    <article class="project" aria-labelledby="p2-t" data-from="right">
       <img class="cover" src="img/p2.webp" alt="A row of narrow brick and glass townhouses on a harbour quay at dusk" loading="lazy" decoding="async">
       <div class="bar"><p class="label">A TAKU project</p><div><h2 class="d" id="p2-t">Townhouses on the quay</h2><p>Six narrow homes on a working harbour, each with a workshop at street level and a terrace above the water.</p></div><a class="d" href="#contact">View the project<span class="sr">: Townhouses on the quay</span></a></div>
     </article>
-    <div class="p-hold" aria-hidden="true"></div>
-    <article class="project" aria-labelledby="p3-t">
+    <article class="project" aria-labelledby="p3-t" data-from="bottom">
       <img class="cover" src="img/p3.webp" alt="A brick textile mill converted into a bright design studio with long timber tables" loading="lazy" decoding="async">
       <div class="bar"><p class="label">A TAKU project</p><div><h2 class="d" id="p3-t">The mill, reopened</h2><p>We kept the brick shell of a textile mill and fitted a design studio inside it, steel windows and all.</p></div><a class="d" href="#contact">View the project<span class="sr">: The mill, reopened</span></a></div>
     </article>
-    <div class="p-hold" aria-hidden="true"></div>
-    <article class="project" aria-labelledby="p4-t">
+    <article class="project" aria-labelledby="p4-t" data-from="left">
       <img class="cover" src="img/p4.webp" alt="A planted rooftop garden with timber decks above the city at golden hour" loading="lazy" decoding="async">
       <div class="bar"><p class="label">A TAKU project</p><div><h2 class="d" id="p4-t">A garden on the roof</h2><p>Seventy residents share a planted roof with decks, beds and benches above the city.</p></div><a class="d" href="#contact">View the project<span class="sr">: A garden on the roof</span></a></div>
     </article>
-    <div class="p-hold" aria-hidden="true"></div>
+   </div>
   </div>
 
   <section class="clarity" id="studio" aria-labelledby="c-title" data-clarity>
@@ -460,6 +466,19 @@
 
   /* Scroll-driven parts: the hero turns into its second frame, the clarity strip rises and opens, the pattern drifts */
   var hero = $("[data-hero]"), clarity = $("[data-clarity]"), stats = $("[data-stats]"), queued = false;
+  var work = $("[data-work]"), panels = $$(".project", work);
+  work.style.setProperty("--n", panels.length);
+  // One project = 100vh of entrance + 70vh of hold; the first one arrives with the page, so it only holds.
+  function stage() {
+    var vh = innerHeight, y = -work.getBoundingClientRect().top, hold = .7 * vh;
+    panels.forEach(function (p, i) {
+      if (!i) return;
+      var e = clamp((y - hold - (i - 1) * (vh + hold)) / vh), k = (1 - e) * 100, from = p.dataset.from;
+      p.style.transform = from === "left" ? "translateX(" + -k + "%)" : from === "right" ? "translateX(" + k + "%)" : "translateY(" + k + "%)";
+      p.style.setProperty("--e", e.toFixed(3));
+      p.style.visibility = e > 0 ? "visible" : "hidden";
+    });
+  }
   function progress(el) {
     var r = el.getBoundingClientRect();
     return clamp(-r.top / Math.max(1, r.height - innerHeight));
@@ -470,6 +489,7 @@
     top.classList.toggle("hide", y > lastY && y > innerHeight * .5 && !menu.classList.contains("open"));
     lastY = y;
     if (RM) return;
+    stage();
     var hp = progress(hero);
     hero.style.setProperty("--p", hp.toFixed(3));
     hero.style.setProperty("--f", clamp((hp - .25) / .5).toFixed(3));
